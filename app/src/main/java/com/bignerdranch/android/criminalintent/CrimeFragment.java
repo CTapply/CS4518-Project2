@@ -6,6 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.content.Context;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.face.Landmark;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -15,6 +22,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,12 +56,13 @@ public class CrimeFragment extends Fragment {
     private Button mReportButton;
     private Button mSuspectButton;
     private ImageButton mPhotoButton;
-    private ImageView mPhotoView0;
-    private ImageView mPhotoView1;
-    private ImageView mPhotoView2;
-    private ImageView mPhotoView3;
+    private FaceOverlayView mPhotoView0;
+    private FaceOverlayView mPhotoView1;
+    private FaceOverlayView mPhotoView2;
+    private FaceOverlayView mPhotoView3;
     private int photoIndex = 0;
     private View v;
+    private FaceDetector detector;
 
     public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -76,6 +85,13 @@ public class CrimeFragment extends Fragment {
 
         }
 
+//        Context context = getActivity();
+//
+//        detector = new FaceDetector.Builder(context)
+//                .setTrackingEnabled(false)
+//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+//                .build();
+
 
     }
 
@@ -92,10 +108,10 @@ public class CrimeFragment extends Fragment {
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_crime, container, false);
 
-        mPhotoView0 = (ImageView) v.findViewById(R.id.crime_photo1);
-        mPhotoView1 = (ImageView) v.findViewById(R.id.crime_photo2);
-        mPhotoView2 = (ImageView) v.findViewById(R.id.crime_photo3);
-        mPhotoView3 = (ImageView) v.findViewById(R.id.crime_photo4);
+        mPhotoView0 = (FaceOverlayView) v.findViewById(R.id.crime_photo1);
+        mPhotoView1 = (FaceOverlayView) v.findViewById(R.id.crime_photo2);
+        mPhotoView2 = (FaceOverlayView) v.findViewById(R.id.crime_photo3);
+        mPhotoView3 = (FaceOverlayView) v.findViewById(R.id.crime_photo4);
 
         mTitleField = (EditText) v.findViewById(R.id.crime_title);
         mTitleField.setText(mCrime.getTitle());
@@ -182,8 +198,6 @@ public class CrimeFragment extends Fragment {
 
             Uri uri = mPhotoFiles.get(photoIndex);
             System.out.println("uri.toString " + uri.toString());
-
-
             captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         }
 
@@ -192,7 +206,6 @@ public class CrimeFragment extends Fragment {
             public void onClick(View v) {
                 Uri uri = mPhotoFiles.get(photoIndex);
                 System.out.println("uri.toString " + uri.toString());
-
 
                 captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 startActivityForResult(captureImage, REQUEST_PHOTO);
@@ -314,7 +327,7 @@ public class CrimeFragment extends Fragment {
         return report;
     }
 
-    private void updatePhotoView(ImageView view) {
+    private void updatePhotoView(FaceOverlayView view) {
         if (mPhotoFiles.get(photoIndex) == null || !new File(mPhotoFiles.get(photoIndex).getPath()).exists()) {
             System.out.println("Inside of == null");
             System.out.println("This is the Image we Looked for... " + mPhotoFiles.get(photoIndex).getPath());
@@ -325,7 +338,8 @@ public class CrimeFragment extends Fragment {
             Bitmap bitmap = PictureUtils.getScaledBitmap(
                     mPhotoFiles.get(photoIndex).getPath(), getActivity());
 
-            view.setImageBitmap(bitmap);
+//            view.setImageBitmap(bitmap);
+            view.setBitmap(bitmap);
         }
     }
 }

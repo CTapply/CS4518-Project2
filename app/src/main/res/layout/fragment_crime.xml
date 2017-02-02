@@ -44,7 +44,6 @@
         />
 
     <include
-        layout="@layout/view_more_images"
-        android:layout_weight="1" />
+        layout="@layout/view_more_images" />
 
 </LinearLayout>
