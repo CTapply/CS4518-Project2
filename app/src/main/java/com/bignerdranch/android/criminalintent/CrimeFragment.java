@@ -13,6 +13,7 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.Landmark;
 
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -33,6 +34,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.Date;
@@ -63,6 +65,8 @@ public class CrimeFragment extends Fragment {
     private int photoIndex = 0;
     private View v;
     private FaceDetector detector;
+    private CheckBox detectFaces;
+    private TextView numFacesTextField;
 
     public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
@@ -79,6 +83,7 @@ public class CrimeFragment extends Fragment {
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
         mPhotoFiles = CrimeLab.get(getActivity()).getPhotoFiles(mCrime);
+
         System.out.println("inside onCreate()");
         for (int i = 0; i < mPhotoFiles.size(); i++) {
             System.out.println(mPhotoFiles.get(i));
@@ -112,6 +117,8 @@ public class CrimeFragment extends Fragment {
         mPhotoView1 = (FaceOverlayView) v.findViewById(R.id.crime_photo2);
         mPhotoView2 = (FaceOverlayView) v.findViewById(R.id.crime_photo3);
         mPhotoView3 = (FaceOverlayView) v.findViewById(R.id.crime_photo4);
+        detectFaces = (CheckBox) v.findViewById(R.id.DetectFaces);
+        numFacesTextField = (TextView) v.findViewById(R.id.numFacesText);
 
         mTitleField = (EditText) v.findViewById(R.id.crime_title);
         mTitleField.setText(mCrime.getTitle());
@@ -331,15 +338,32 @@ public class CrimeFragment extends Fragment {
         if (mPhotoFiles.get(photoIndex) == null || !new File(mPhotoFiles.get(photoIndex).getPath()).exists()) {
             System.out.println("Inside of == null");
             System.out.println("This is the Image we Looked for... " + mPhotoFiles.get(photoIndex).getPath());
-            view.setImageDrawable(null);
+            //view.setImageDrawable(null);
         } else {
             System.out.println("Inside of Else... Getting scaled Bitmap");
             System.out.println("This is the Image we got... " + mPhotoFiles.get(photoIndex).getPath());
             Bitmap bitmap = PictureUtils.getScaledBitmap(
                     mPhotoFiles.get(photoIndex).getPath(), getActivity());
 
-//            view.setImageBitmap(bitmap);
-            view.setBitmap(bitmap);
+            bitmap = RotateBitmap(bitmap, 90);
+
+
+            if (detectFaces.isChecked()) {
+                int numFaces = view.setBitmap(bitmap);
+                numFacesTextField.setText(numFaces + " Face(s) Detected");
+                numFacesTextField.setVisibility(View.VISIBLE);
+            } else {
+                numFacesTextField.setVisibility(View.INVISIBLE);
+                view.setImageBitmap(bitmap);
+
+            }
         }
+    }
+
+    public static Bitmap RotateBitmap(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 }
