@@ -11,7 +11,6 @@ public class PictureUtils {
         activity.getWindowManager().getDefaultDisplay()
                 .getSize(size);
 
-        System.out.println(" SIZE X Y " + size.x + size.y);
         return getScaledBitmap(path, size.x, size.y);
     }
 

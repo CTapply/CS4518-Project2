@@ -69,11 +69,6 @@ public class CrimeFragment extends Fragment {
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
         mPhotoFiles = CrimeLab.get(getActivity()).getPhotoFiles(mCrime);
-
-        for (int i = 0; i < mPhotoFiles.size(); i++) {
-            System.out.println(mPhotoFiles.get(i));
-
-        }
     }
 
     @Override
@@ -311,12 +306,12 @@ public class CrimeFragment extends Fragment {
 
 
             if (detectFaces.isChecked()) {
-                int numFaces = view.setBitmap(bitmap);
+                int numFaces = view.setBitmap(bitmap, true);
                 numFacesTextField.setText(numFaces + " Face(s) Detected");
                 numFacesTextField.setVisibility(View.VISIBLE);
             } else {
                 numFacesTextField.setVisibility(View.INVISIBLE);
-                view.setImageBitmap(bitmap);
+                view.setBitmap(bitmap, false);
 
             }
         }
