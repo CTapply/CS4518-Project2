@@ -6,13 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.content.Context;
-
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.FaceDetector;
-import com.google.android.gms.vision.face.Landmark;
-
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +16,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +25,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -55,16 +46,11 @@ public class CrimeFragment extends Fragment {
     private EditText mTitleField;
     private Button mDateButton;
     private CheckBox mSolvedCheckbox;
-    private Button mReportButton;
-    private Button mSuspectButton;
+    private Button mReportButton, mSuspectButton;
     private ImageButton mPhotoButton;
-    private FaceOverlayView mPhotoView0;
-    private FaceOverlayView mPhotoView1;
-    private FaceOverlayView mPhotoView2;
-    private FaceOverlayView mPhotoView3;
+    private FaceOverlayView mPhotoView0, mPhotoView1, mPhotoView2, mPhotoView3;
     private int photoIndex = 0;
     private View v;
-    private FaceDetector detector;
     private CheckBox detectFaces;
     private TextView numFacesTextField;
 
@@ -84,20 +70,10 @@ public class CrimeFragment extends Fragment {
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
         mPhotoFiles = CrimeLab.get(getActivity()).getPhotoFiles(mCrime);
 
-        System.out.println("inside onCreate()");
         for (int i = 0; i < mPhotoFiles.size(); i++) {
             System.out.println(mPhotoFiles.get(i));
 
         }
-
-//        Context context = getActivity();
-//
-//        detector = new FaceDetector.Builder(context)
-//                .setTrackingEnabled(false)
-//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-//                .build();
-
-
     }
 
     @Override
@@ -204,7 +180,6 @@ public class CrimeFragment extends Fragment {
         if (canTakePhoto) {
 
             Uri uri = mPhotoFiles.get(photoIndex);
-            System.out.println("uri.toString " + uri.toString());
             captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         }
 
@@ -212,7 +187,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Uri uri = mPhotoFiles.get(photoIndex);
-                System.out.println("uri.toString " + uri.toString());
 
                 captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 startActivityForResult(captureImage, REQUEST_PHOTO);
@@ -235,7 +209,6 @@ public class CrimeFragment extends Fragment {
                     break;
             }
         }
-        System.out.println("in OnCreateView");
         photoIndex = 0;
 
         return v;
@@ -284,29 +257,22 @@ public class CrimeFragment extends Fragment {
         } else if (requestCode == REQUEST_PHOTO) {
             switch (photoIndex) {
                 case 0:
-//                    mPhotoFiles.set(photoIndex, new File(data.fgetData().getPath()));
                     updatePhotoView(mPhotoView0);
                     photoIndex++;
                     break;
                 case 1:
-//                    mPhotoFiles.set(photoIndex, new File(data.getData().getPath()));
                     updatePhotoView(mPhotoView1);
                     photoIndex++;
                     break;
                 case 2:
-//                    mPhotoFiles.set(photoIndex, new File(data.getData().getPath()));
                     updatePhotoView(mPhotoView2);
                     photoIndex++;
                     break;
                 case 3:
-//                    mPhotoFiles.set(photoIndex, new File(data.getData().getPath()));
                     updatePhotoView(mPhotoView3);
                     photoIndex = 0;
                     break;
             }
-            System.out.println("in onActivityResult photoIndex = " + photoIndex);
-
-
         }
     }
 
@@ -336,12 +302,8 @@ public class CrimeFragment extends Fragment {
 
     private void updatePhotoView(FaceOverlayView view) {
         if (mPhotoFiles.get(photoIndex) == null || !new File(mPhotoFiles.get(photoIndex).getPath()).exists()) {
-            System.out.println("Inside of == null");
-            System.out.println("This is the Image we Looked for... " + mPhotoFiles.get(photoIndex).getPath());
-            //view.setImageDrawable(null);
+            view.setImageDrawable(null);
         } else {
-            System.out.println("Inside of Else... Getting scaled Bitmap");
-            System.out.println("This is the Image we got... " + mPhotoFiles.get(photoIndex).getPath());
             Bitmap bitmap = PictureUtils.getScaledBitmap(
                     mPhotoFiles.get(photoIndex).getPath(), getActivity());
 
