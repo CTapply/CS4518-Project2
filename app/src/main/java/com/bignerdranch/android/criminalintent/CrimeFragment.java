@@ -41,14 +41,17 @@ public class CrimeFragment extends Fragment {
     private static final int REQUEST_PHOTO= 2;
 
     private Crime mCrime;
-    private LinkedList<File> mPhotoFiles;
+    private LinkedList<Uri> mPhotoFiles;
     private EditText mTitleField;
     private Button mDateButton;
     private CheckBox mSolvedCheckbox;
     private Button mReportButton;
     private Button mSuspectButton;
     private ImageButton mPhotoButton;
-    private ImageView mPhotoView;
+    private ImageView mPhotoView0;
+    private ImageView mPhotoView1;
+    private ImageView mPhotoView2;
+    private ImageView mPhotoView3;
     private int photoIndex = 0;
     private View v;
 
@@ -67,6 +70,13 @@ public class CrimeFragment extends Fragment {
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
         mPhotoFiles = CrimeLab.get(getActivity()).getPhotoFiles(mCrime);
+        System.out.println("inside onCreate()");
+        for (int i = 0; i < mPhotoFiles.size(); i++) {
+            System.out.println(mPhotoFiles.get(i));
+
+        }
+
+
     }
 
     @Override
@@ -81,6 +91,11 @@ public class CrimeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_crime, container, false);
+
+        mPhotoView0 = (ImageView) v.findViewById(R.id.crime_photo1);
+        mPhotoView1 = (ImageView) v.findViewById(R.id.crime_photo2);
+        mPhotoView2 = (ImageView) v.findViewById(R.id.crime_photo3);
+        mPhotoView3 = (ImageView) v.findViewById(R.id.crime_photo4);
 
         mTitleField = (EditText) v.findViewById(R.id.crime_title);
         mTitleField.setText(mCrime.getTitle());
@@ -164,15 +179,22 @@ public class CrimeFragment extends Fragment {
         mPhotoButton.setEnabled(canTakePhoto);
 
         if (canTakePhoto) {
-//            for (photoIndex = 0; photoIndex < mPhotoFiles.size(); photoIndex++) {
-                Uri uri = Uri.fromFile(mPhotoFiles.get(photoIndex));
-                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-//            }
+
+            Uri uri = mPhotoFiles.get(photoIndex);
+            System.out.println("uri.toString " + uri.toString());
+
+
+            captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         }
 
         mPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Uri uri = mPhotoFiles.get(photoIndex);
+                System.out.println("uri.toString " + uri.toString());
+
+
+                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 startActivityForResult(captureImage, REQUEST_PHOTO);
             }
         });
@@ -180,19 +202,18 @@ public class CrimeFragment extends Fragment {
         for (photoIndex = 0; photoIndex < mPhotoFiles.size(); photoIndex++) {
             switch (photoIndex) {
                 case 0:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo1);
+                    updatePhotoView(mPhotoView0);
                     break;
                 case 1:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo2);
+                    updatePhotoView(mPhotoView1);
                     break;
                 case 2:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo3);
+                    updatePhotoView(mPhotoView2);
                     break;
                 case 3:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo4);
+                    updatePhotoView(mPhotoView3);
                     break;
             }
-            updatePhotoView();
         }
         System.out.println("in OnCreateView");
         photoIndex = 0;
@@ -243,27 +264,23 @@ public class CrimeFragment extends Fragment {
         } else if (requestCode == REQUEST_PHOTO) {
             switch (photoIndex) {
                 case 0:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo1);
-//                    mPhotoFiles.set(photoIndex, new File(data.getData().getPath()));
-                    updatePhotoView();
+//                    mPhotoFiles.set(photoIndex, new File(data.fgetData().getPath()));
+                    updatePhotoView(mPhotoView0);
                     photoIndex++;
                     break;
                 case 1:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo2);
 //                    mPhotoFiles.set(photoIndex, new File(data.getData().getPath()));
-                    updatePhotoView();
+                    updatePhotoView(mPhotoView1);
                     photoIndex++;
                     break;
                 case 2:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo3);
 //                    mPhotoFiles.set(photoIndex, new File(data.getData().getPath()));
-                    updatePhotoView();
+                    updatePhotoView(mPhotoView2);
                     photoIndex++;
                     break;
                 case 3:
-                    mPhotoView = (ImageView) v.findViewById(R.id.crime_photo4);
 //                    mPhotoFiles.set(photoIndex, new File(data.getData().getPath()));
-                    updatePhotoView();
+                    updatePhotoView(mPhotoView3);
                     photoIndex = 0;
                     break;
             }
@@ -297,14 +314,18 @@ public class CrimeFragment extends Fragment {
         return report;
     }
 
-    private void updatePhotoView() {
-        if (mPhotoFiles.get(photoIndex) == null || !mPhotoFiles.get(photoIndex).exists()) {
+    private void updatePhotoView(ImageView view) {
+        if (mPhotoFiles.get(photoIndex) == null || !new File(mPhotoFiles.get(photoIndex).getPath()).exists()) {
             System.out.println("Inside of == null");
-            mPhotoView.setImageDrawable(null);
+            System.out.println("This is the Image we Looked for... " + mPhotoFiles.get(photoIndex).getPath());
+            view.setImageDrawable(null);
         } else {
+            System.out.println("Inside of Else... Getting scaled Bitmap");
+            System.out.println("This is the Image we got... " + mPhotoFiles.get(photoIndex).getPath());
             Bitmap bitmap = PictureUtils.getScaledBitmap(
                     mPhotoFiles.get(photoIndex).getPath(), getActivity());
-            mPhotoView.setImageBitmap(bitmap);
+
+            view.setImageBitmap(bitmap);
         }
     }
 }

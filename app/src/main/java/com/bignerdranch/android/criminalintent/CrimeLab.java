@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Environment;
 
 import com.bignerdranch.android.criminalintent.database.CrimeBaseHelper;
@@ -76,8 +77,8 @@ public class CrimeLab {
         }
     }
 
-    public LinkedList<File> getPhotoFiles(Crime crime) {
-        LinkedList<File> allPhotoFiles = new LinkedList<>();
+    public LinkedList<Uri> getPhotoFiles(Crime crime) {
+        LinkedList<Uri> allPhotoFiles = new LinkedList<>();
         File externalFilesDir = mContext
                 .getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
@@ -86,7 +87,9 @@ public class CrimeLab {
         }
 
         for (int i = 0; i < 4; i++) {
-            allPhotoFiles.add(new File(externalFilesDir, crime.getPhotoFilename(String.valueOf(i))));
+            File tempFile = new File(externalFilesDir, crime.getPhotoFilename(i));
+
+            allPhotoFiles.add(Uri.fromFile(tempFile));
         }
 
         return allPhotoFiles;
